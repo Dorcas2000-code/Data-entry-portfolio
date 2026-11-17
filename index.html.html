@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tools I Use | Isac Bessan</title>
+<style>
+  :root{
+    --green:#217346; --green-d:#185c37; --green-l:#5cc46b; --cream:#fbfdea;
+    --ink:#101914; --sheets:#0f9d58; --grid:#d4d4d4; --blue:#2b579a; --orange:#c43e1c; --ol:#0f6cbd;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;color:var(--ink);background:#3f9d4d;min-height:100vh;overflow-x:hidden}
+  /* ---------- LANDING ---------- */
+  .hero{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr;align-items:center;gap:32px;padding:48px 6vw;
+    background:radial-gradient(circle at 15% 85%,#5cc46b 0,#5cc46b 22%,transparent 23%),linear-gradient(135deg,#2f8f3f,#6fbf4f 60%,#c9d96a)}
+  .hero h1{font-family:Impact,"Arial Black",sans-serif;font-size:clamp(48px,9vw,110px);line-height:.95;letter-spacing:1px;color:#000;text-transform:uppercase}
+  .hero p.sub{margin-top:18px;font-size:18px;max-width:460px;color:#0b2a14}
+  .cards{display:flex;flex-direction:column;gap:18px}
+  .card{display:flex;align-items:center;gap:24px;width:100%;padding:22px 26px;background:var(--cream);border:0;border-radius:6px;cursor:pointer;
+    text-align:left;font:inherit;box-shadow:0 6px 18px rgba(0,0,0,.18);transition:transform .15s,box-shadow .15s}
+  .card:hover,.card:focus-visible{transform:translateX(-6px);box-shadow:0 10px 26px rgba(0,0,0,.28);outline:3px solid #000}
+  .card .ico{flex:none;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px}
+  .card h2{font-size:19px;letter-spacing:.5px;text-transform:uppercase}
+  .card small{display:block;margin-top:4px;color:#46513f;font-size:13px}
+  .card .go{margin-left:auto;font-size:22px;opacity:.5}
+  @media(max-width:860px){.hero{grid-template-columns:1fr}}
+
+  /* ---------- OVERLAY ---------- */
+  .overlay{position:fixed;inset:0;background:#fff;z-index:50;display:none;flex-direction:column}
+  .overlay.open{display:flex}
+  .app-title{display:flex;align-items:center;gap:12px;padding:8px 14px;color:#fff}
+  .app-title .logo{width:28px;height:28px;border-radius:4px;background:#fff;display:grid;place-items:center;font-weight:800}
+  .app-title .name{font-weight:600}
+  .close{margin-left:auto;background:rgba(255,255,255,.18);border:0;color:inherit;padding:6px 14px;border-radius:4px;cursor:pointer;font:inherit}
+  .close:hover{background:rgba(255,255,255,.32)}
+
+  /* Excel */
+  #excel .app-title{background:var(--green)} #excel .logo{color:var(--green)}
+  .ribbon-tabs{display:flex;gap:2px;background:var(--green);padding:0 10px}
+  .ribbon-tabs span{padding:7px 14px;color:#fff;font-size:13px;cursor:default;border-radius:4px 4px 0 0}
+  .ribbon-tabs span.on{background:#f3f3f3;color:var(--green)}
+  .ribbon{display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:#f3f3f3;padding:8px 12px;border-bottom:1px solid #ccc}
+  .ribbon button,.tb button{background:#fff;border:1px solid #c8c8c8;border-radius:3px;padding:4px 10px;font-size:13px;cursor:pointer}
+  .ribbon button:hover,.tb button:hover{background:#e6f2ea}
+  .ribbon .sep,.tb .sep{width:1px;height:22px;background:#ccc;margin:0 6px}
+  .fbar{display:flex;align-items:center;border-bottom:1px solid #ccc;background:#fff;font-size:13px}
+  .fbar .ref{width:80px;text-align:center;border-right:1px solid #ccc;padding:5px;font-weight:600}
+  .fbar .fx{padding:0 10px;font-style:italic;color:#666;border-right:1px solid #ccc}
+  .fbar input{flex:1;border:0;padding:6px 10px;font:inherit;outline:none}
+  .sheetwrap{flex:1;overflow:auto;background:#fff}
+  table.grid{border-collapse:collapse;font-size:13px;table-layout:fixed}
+  .grid th{background:#e9e9e9;font-weight:500;border:1px solid var(--grid);padding:3px 6px;position:sticky;top:0;z-index:2;color:#444}
+  .grid th.rn{left:0;z-index:3;width:42px;min-width:42px}
+  .grid td{border:1px solid #e3e3e3;padding:3px 7px;height:24px;min-width:110px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:cell}
+  .grid td.rn{background:#e9e9e9;text-align:center;color:#555;position:sticky;left:0;min-width:42px}
+  .grid td.num{text-align:right}
+  .grid td.hd{background:#e2f0e7;font-weight:700}
+  .grid td.tot{font-weight:700;background:#f4faf6}
+  .grid td.sel{outline:2px solid var(--green);outline-offset:-2px;background:#eef8f1}
+  #sheets .grid td.sel{outline-color:#1a73e8;background:#e8f0fe}
+  .grid td[contenteditable="true"]{text-overflow:clip;background:#fff;outline:2px solid #000}
+  .tabs{display:flex;align-items:center;gap:2px;background:#f3f3f3;border-top:1px solid #ccc;padding:0 8px;font-size:13px}
+  .tabs button{border:0;background:none;padding:8px 16px;cursor:pointer;font:inherit}
+  .tabs button.on{background:#fff;color:var(--green);font-weight:700;border-bottom:3px solid var(--green)}
+  #sheets .tabs button.on{color:#188038;border-color:#188038}
+  .status{margin-left:auto;color:#555;padding-right:10px}
+  .chart{padding:18px 24px;background:#fff;border-top:1px solid #ddd}
+  .chart h4{font-size:13px;margin-bottom:10px;color:#333}
+  .bars{display:flex;align-items:flex-end;gap:14px;height:110px}
+  .bar{flex:1;max-width:80px;background:var(--green);border-radius:3px 3px 0 0;position:relative;transition:height .3s}
+  .bar span{position:absolute;top:-17px;left:0;right:0;text-align:center;font-size:11px;color:#333}
+  .bar i{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:11px;font-style:normal;color:#555}
+  .chart{padding-bottom:34px}
+
+  /* Sheets */
+  #sheets .app-title{background:#fff;color:#202124;border-bottom:1px solid #e0e0e0}
+  #sheets .logo{background:var(--sheets);color:#fff}
+  #sheets .close{background:#e8f0fe;color:#174ea6}
+  .menu{display:flex;gap:2px;padding:0 10px 4px 56px;font-size:13px;color:#202124;background:#fff}
+  .menu span{padding:4px 8px;border-radius:4px;cursor:default}.menu span:hover{background:#f1f3f4}
+  .share{background:#c2e7ff;color:#001d35;border-radius:18px;padding:7px 18px;font-weight:600;font-size:13px;margin-left:auto}
+  .avatars{display:flex}.avatars b{width:26px;height:26px;border-radius:50%;background:#a142f4;color:#fff;font-size:12px;display:grid;place-items:center;margin-left:-6px;border:2px solid #fff}
+  .tb{display:flex;gap:6px;align-items:center;flex-wrap:wrap;background:#edf2fa;margin:4px 10px;padding:6px 14px;border-radius:24px}
+  .tb button{border:0;background:transparent;border-radius:4px}
+  .tb button.on{background:#d3e3fd}
+  .chip{display:inline-block;padding:1px 10px;border-radius:10px;font-size:12px;font-weight:600}
+  .chip.Done{background:#ceead6;color:#0d652d}.chip.Active{background:#d2e3fc;color:#174ea6}.chip.Planned{background:#fef7e0;color:#b06000}.chip.Blocked{background:#fad2cf;color:#a50e0e}
+  .progress{height:10px;background:#e8eaed;border-radius:5px;overflow:hidden;min-width:90px;margin-top:5px}
+  .progress i{display:block;height:100%;background:var(--sheets)}
+  #sheets .grid th{background:#f8f9fa}
+  #sheets .grid td.rn{background:#f8f9fa}
+  #sheets .grid td.hd{background:#e6f4ea}
+  #sheets .grid td{border-color:#e0e0e0}
+
+  /* Office */
+  #office .app-title{background:#323130}
+  #office .logo{color:#323130}
+  .suite{display:flex;gap:8px;padding:10px 14px;background:#f3f2f1;border-bottom:1px solid #d2d0ce;flex-wrap:wrap}
+  .suite button{display:flex;align-items:center;gap:8px;border:1px solid #d2d0ce;background:#fff;border-radius:4px;padding:6px 14px;cursor:pointer;font:inherit;font-size:14px}
+  .suite button i{font-style:normal;width:22px;height:22px;border-radius:3px;color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center}
+  .suite button.on{border-color:#000;box-shadow:inset 0 -3px 0 #000}
+  .office-body{flex:1;overflow:auto;background:#e8e8e8;padding:28px}
+  .pane{display:none}.pane.on{display:block}
+  .paper{max-width:780px;margin:0 auto;background:#fff;padding:54px 64px;box-shadow:0 2px 10px rgba(0,0,0,.2);font-family:Calibri,"Segoe UI",sans-serif;line-height:1.55}
+  .paper h3{color:var(--blue);font-size:26px;margin-bottom:4px}
+  .paper h5{margin:18px 0 6px;font-size:15px;color:var(--blue);border-bottom:1px solid #c9d6ec;padding-bottom:3px}
+  .paper ul{margin-left:20px}
+  .slides{display:grid;grid-template-columns:150px 1fr;gap:18px;max-width:1000px;margin:0 auto}
+  .thumbs{display:flex;flex-direction:column;gap:10px}
+  .thumb{aspect-ratio:16/9;border:2px solid #bbb;background:#fff;cursor:pointer;font-size:10px;padding:6px;overflow:hidden;border-radius:3px}
+  .thumb.on{border-color:var(--orange)}
+  .slide{aspect-ratio:16/9;background:linear-gradient(135deg,#fff,#fff3ee);box-shadow:0 2px 10px rgba(0,0,0,.25);padding:6% 7%;border-top:10px solid var(--orange)}
+  .slide h3{font-size:clamp(20px,3.4vw,38px);color:var(--orange);margin-bottom:12px}
+  .slide ul{font-size:clamp(13px,1.9vw,22px);margin-left:1.2em;line-height:1.6}
+  .mail{display:grid;grid-template-columns:260px 1fr;max-width:1000px;margin:0 auto;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.2);min-height:360px}
+  .mail .list{border-right:1px solid #e1dfdd}
+  .mail .item{padding:12px 14px;border-bottom:1px solid #edebe9;cursor:pointer;font-size:13px}
+  .mail .item.on{background:#deecf9;border-left:4px solid var(--ol)}
+  .mail .item b{display:block;font-size:14px}
+  .mail .read{padding:24px 28px}
+  .mail .read h4{font-size:20px;margin-bottom:8px}
+  .mail .read .meta{color:#666;font-size:13px;margin-bottom:16px}
+  .note{max-width:780px;margin:14px auto 0;font-size:12px;color:#555;text-align:center}
+  @media(max-width:700px){.slides,.mail{grid-template-columns:1fr}.thumbs{flex-direction:row;overflow:auto}.thumb{min-width:110px}.paper{padding:28px 22px}}
+</style>
+</head>
+<body>
+
+<!-- ================= LANDING ================= -->
+<main class="hero">
+  <div>
+    <h1>Tools<br>I Use</h1>
+    <p class="sub">The everyday tools I use to track maintenance work, manage budgets and projects, and turn data into decisions. Click a tool to see how I work with it.</p>
+  </div>
+  <div class="cards">
+    <button class="card" data-open="excel">
+      <span class="ico" style="background:#107c41">X</span>
+      <span><h2>Excel</h2><small>Formulas, cost tracking, dashboards</small></span><span class="go">›</span>
+    </button>
+    <button class="card" data-open="sheets">
+      <span class="ico" style="background:#0f9d58">S</span>
+      <span><h2>Google Sheets</h2><small>Shared trackers and live collaboration</small></span><span class="go">›</span>
+    </button>
+    <button class="card" data-open="office">
+      <span class="ico" style="background:#2b579a">O</span>
+      <span><h2>Microsoft Office Tools</h2><small>Word, PowerPoint and Outlook</small></span><span class="go">›</span>
+    </button>
+  </div>
+</main>
+
+<!-- ================= EXCEL ================= -->
+<section class="overlay" id="excel" aria-label="Excel workspace">
+  <div class="app-title"><span class="logo">X</span><span class="name">Maintenance-Cost-Tracker.xlsx — Excel</span><button class="close">✕ Close</button></div>
+  <div class="ribbon-tabs"><span>File</span><span class="on">Home</span><span>Insert</span><span>Data</span><span>Formulas</span><span>View</span></div>
+  <div class="ribbon">
+    <button data-act="bold">B</button><button data-act="fill">Highlight</button><button data-act="money">$ Currency</button>
+    <span class="sep"></span>
+    <button data-act="sum">Σ AutoSum</button><button data-act="sort">Sort A→Z</button><button data-act="addrow">+ Row</button><button data-act="reset">Reset</button>
+  </div>
+  <div class="fbar"><div class="ref">A1</div><div class="fx">fx</div><input aria-label="Formula bar" placeholder="Click a cell, then edit here and press Enter"></div>
+  <div class="sheetwrap"><table class="grid"></table></div>
+  <div class="chart"><h4>Total cost by category</h4><div class="bars"></div></div>
+  <div class="tabs"><button class="on">Cost Tracker</button><button disabled>PM Dashboard</button><button disabled>Budget</button><span class="status">Ready · double-click a cell to edit</span></div>
+</section>
+
+<!-- ================= GOOGLE SHEETS ================= -->
+<section class="overlay" id="sheets" aria-label="Google Sheets workspace">
+  <div class="app-title"><span class="logo">S</span><span class="name">Project Tracker — Google Sheets</span>
+    <span class="avatars" style="margin-left:14px"><b>IB</b><b style="background:#1a73e8">TM</b><b style="background:#e37400">AK</b></span>
+    <span class="share">Share</span><button class="close">✕ Close</button></div>
+  <div class="menu"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Data</span><span>Tools</span><span>Extensions</span><span>Help</span></div>
+  <div class="tb">
+    <button data-act="bold"><b>B</b></button><button data-act="fill">Fill color</button><button data-act="sort">Sort A→Z</button>
+    <span class="sep"></span>
+    <span style="font-size:13px">Filter:</span>
+    <button class="on" data-f="All">All</button><button data-f="Active">Active</button><button data-f="Planned">Planned</button><button data-f="Done">Done</button><button data-f="Blocked">Blocked</button>
+    <span class="sep"></span><button data-act="addrow">+ Row</button><button data-act="reset">Reset</button>
+  </div>
+  <div class="fbar"><div class="ref">A1</div><div class="fx">fx</div><input aria-label="Formula bar" placeholder="Click a cell, then edit here and press Enter"></div>
+  <div class="sheetwrap"><table class="grid"></table></div>
+  <div class="tabs"><button class="on">Tracker</button><button disabled>Timeline</button><button disabled>Budget</button><span class="status">All changes saved in Drive</span></div>
+</section>
+
+<!-- ================= OFFICE ================= -->
+<section class="overlay" id="office" aria-label="Microsoft Office tools">
+  <div class="app-title"><span class="logo">O</span><span class="name">Microsoft Office Tools</span><button class="close">✕ Close</button></div>
+  <div class="suite">
+    <button class="on" data-pane="word"><i style="background:var(--blue)">W</i>Word</button>
+    <button data-pane="ppt"><i style="background:var(--orange)">P</i>PowerPoint</button>
+    <button data-pane="outlook"><i style="background:var(--ol)">O</i>Outlook</button>
+  </div>
+  <div class="office-body">
+    <div class="pane on" id="p-word">
+      <div class="paper" contenteditable="true" spellcheck="false">
+        <h3>Preventive Maintenance Report</h3>
+        <div style="color:#666;font-size:13px">Prepared by Isac Bessan · Facilities &amp; Maintenance</div>
+        <h5>1. Summary</h5>
+        <p>This report summarizes completed work orders, equipment downtime, and recommended actions for the month. (Click anywhere on this page to edit it.)</p>
+        <h5>2. Key results</h5>
+        <ul><li>Work orders closed on time: 94%</li><li>Unplanned downtime reduced by 18%</li><li>Safety inspections completed: 100%</li></ul>
+        <h5>3. Next steps</h5>
+        <ul><li>Replace aging lighting ballasts with LED fixtures</li><li>Schedule quarterly electrical panel inspections</li></ul>
+      </div>
+      <p class="note">Used for reports, SOPs, proposals, work instructions, and resumes.</p>
+    </div>
+    <div class="pane" id="p-ppt">
+      <div class="slides"><div class="thumbs"></div><div class="slide"><h3></h3><ul></ul></div></div>
+      <p class="note">Used for project kickoffs, status updates, and training sessions. Click a thumbnail to change slides.</p>
+    </div>
+    <div class="pane" id="p-outlook">
+      <div class="mail"><div class="list"></div><div class="read"></div></div>
+      <p class="note">Used for scheduling, vendor communication, and team coordination.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ============ Mini spreadsheet engine ============ */
+const colName = i => String.fromCharCode(65 + i);
+const parseRef = r => { const m = /^([A-Z])(\d+)$/.exec(r); return m ? [+m[2]-1, m[1].charCodeAt(0)-65] : null; };
+
+class Sheet {
+  constructor(root, data, opts = {}) {
+    this.root = root; this.initial = data; this.opts = opts;
+    this.table = root.querySelector('table.grid');
+    this.fbar = root.querySelector('.fbar input');
+    this.ref = root.querySelector('.fbar .ref');
+    this.status = root.querySelector('.status');
+    this.filter = 'All'; this.sel = null; this.styles = {};
+    this.reset(); this.bind();
+  }
+  reset() { this.data = JSON.parse(JSON.stringify(this.initial)); this.styles = {}; this.filter='All'; this.render(); }
+  val(r, c, seen = new Set()) {
+    const raw = (this.data[r] || [])[c];
+    if (raw == null || raw === '') return 0;
+    if (typeof raw === 'string' && raw[0] === '=') {
+      const key = r + ',' + c; if (seen.has(key)) return '#CIRC!';
+      seen.add(key);
+      try {
+        let f = raw.slice(1).toUpperCase();
+        f = f.replace(/(SUM|AVERAGE|COUNT|MAX|MIN)\(([A-Z]\d+):([A-Z]\d+)\)/g, (_, fn, a, b) => {
+          const [r1, c1] = parseRef(a), [r2, c2] = parseRef(b), v = [];
+          for (let i = Math.min(r1,r2); i <= Math.max(r1,r2); i++) for (let j = Math.min(c1,c2); j <= Math.max(c1,c2); j++) {
+            const x = this.val(i, j, new Set(seen)); if (typeof x === 'number' && !isNaN(x)) v.push(x);
+          }
+          const s = v.reduce((p, n) => p + n, 0);
+          return { SUM: s, AVERAGE: v.length ? s / v.length : 0, COUNT: v.length, MAX: Math.max(...v, 0), MIN: Math.min(...v, 0) }[fn];
+        });
+        f = f.replace(/\b([A-Z])(\d+)\b/g, (_, c2, r2) => { const x = this.val(+r2 - 1, c2.charCodeAt(0) - 65, new Set(seen)); return typeof x === 'number' ? x : 0; });
+        if (!/^[\d+\-*/().\s%e]+$/i.test(f)) return '#ERROR!';
+        return Function('"use strict";return (' + f + ')')();
+      } catch { return '#ERROR!'; }
+    }
+    const n = Number(raw); return raw !== '' && !isNaN(n) ? n : raw;
+  }
+  fmt(r, c) {
+    const v = this.val(r, c), st = this.styles[r + ',' + c] || {};
+    if (typeof v === 'number') {
+      const out = st.money || (this.opts.money || []).includes(c) ? '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : (Number.isInteger(v) ? v : +v.toFixed(2));
+      return out;
+    }
+    return v;
+  }
+  render() {
+    const rows = this.data.length, cols = this.data[0].length;
+    let h = '<tr><th class="rn"></th>' + Array.from({ length: cols }, (_, i) => `<th>${colName(i)}</th>`).join('') + '</tr>';
+    for (let r = 0; r < rows; r++) {
+      if (this.filter !== 'All' && r > 0 && this.opts.statusCol != null && this.data[r][this.opts.statusCol] !== this.filter) continue;
+      h += `<tr><td class="rn">${r + 1}</td>`;
+      for (let c = 0; c < cols; c++) {
+        const raw = this.data[r][c], v = this.fmt(r, c), st = this.styles[r + ',' + c] || {};
+        const isNum = typeof this.val(r, c) === 'number';
+        const cls = [isNum ? 'num' : '', r === 0 ? 'hd' : '', this.opts.totalRow === r ? 'tot' : ''].join(' ');
+        const style = (st.bold ? 'font-weight:700;' : '') + (st.fill ? 'background:#fff2a8;' : '');
+        let inner = v;
+        if (this.opts.chips && c === this.opts.statusCol && r > 0) inner = `<span class="chip ${raw}">${raw}</span>`;
+        if (this.opts.progress === c && r > 0) inner = `${raw}%<div class="progress"><i style="width:${Math.min(+raw||0,100)}%"></i></div>`;
+        h += `<td data-r="${r}" data-c="${c}" class="${cls}" style="${style}">${inner}</td>`;
+      }
+      h += '</tr>';
+    }
+    this.table.innerHTML = h;
+    this.table.querySelectorAll('td[data-r]').forEach(td => { if (this.sel && +td.dataset.r === this.sel[0] && +td.dataset.c === this.sel[1]) td.classList.add('sel'); });
+    if (this.opts.onRender) this.opts.onRender(this);
+  }
+  select(r, c) {
+    this.sel = [r, c]; this.ref.textContent = colName(c) + (r + 1);
+    this.fbar.value = this.data[r][c] ?? '';
+    this.table.querySelectorAll('.sel').forEach(x => x.classList.remove('sel'));
+    const td = this.table.querySelector(`td[data-r="${r}"][data-c="${c}"]`); if (td) td.classList.add('sel');
+  }
+  commit(r, c, v) { this.data[r][c] = v; this.render(); this.select(r, c); }
+  bind() {
+    this.table.addEventListener('click', e => { const td = e.target.closest('td[data-r]'); if (td) this.select(+td.dataset.r, +td.dataset.c); });
+    this.table.addEventListener('dblclick', e => {
+      const td = e.target.closest('td[data-r]'); if (!td) return;
+      const r = +td.dataset.r, c = +td.dataset.c;
+      td.textContent = this.data[r][c] ?? ''; td.contentEditable = 'true'; td.focus();
+      const done = () => { td.contentEditable = 'false'; this.commit(r, c, td.textContent.trim()); };
+      td.addEventListener('blur', done, { once: true });
+      td.addEventListener('keydown', k => { if (k.key === 'Enter') { k.preventDefault(); td.blur(); } });
+    });
+    this.fbar.addEventListener('keydown', e => { if (e.key === 'Enter' && this.sel) this.commit(this.sel[0], this.sel[1], this.fbar.value); });
+    this.root.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => this.act(b.dataset.act)));
+    this.root.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => {
+      this.root.querySelectorAll('[data-f]').forEach(x => x.classList.toggle('on', x === b));
+      this.filter = b.dataset.f; this.render();
+    }));
+  }
+  act(a) {
+    const key = this.sel && this.sel.join(',');
+    if (a === 'reset') { this.reset(); this.root.querySelectorAll('[data-f]').forEach(x => x.classList.toggle('on', x.dataset.f === 'All')); return; }
+    if (a === 'addrow') {
+      const end = this.opts.totalRow != null ? this.opts.totalRow : this.data.length;
+      const blank = this.data[0].map(() => ''); this.data.splice(end, 0, blank);
+      if (this.opts.totalRow != null) { this.opts.totalRow++; this.data[this.opts.totalRow] = this.data[this.opts.totalRow].map(x => typeof x === 'string' && x[0] === '=' ? x.replace(/([A-Z])(\d+):([A-Z])(\d+)/, (m, a1, n1, a2, n2) => `${a1}${n1}:${a2}${+n2 + 1}`) : x); }
+      this.render(); this.status && (this.status.textContent = 'Row added — double-click to fill it in'); return;
+    }
+    if (a === 'sort') {
+      const first = 1, last = this.opts.totalRow != null ? this.opts.totalRow : this.data.length;
+      const body = this.data.slice(first, last).filter(r => r[0] !== '').sort((x, y) => String(x[0]).localeCompare(String(y[0])));
+      const blanks = this.data.slice(first, last).filter(r => r[0] === '');
+      this.data.splice(first, last - first, ...body, ...blanks); this.render(); return;
+    }
+    if (!this.sel) { this.status && (this.status.textContent = 'Select a cell first'); return; }
+    if (a === 'sum') {
+      const [r, c] = this.sel; if (r < 2) return;
+      this.commit(r, c, `=SUM(${colName(c)}2:${colName(c)}${r})`); return;
+    }
+    const st = this.styles[key] = this.styles[key] || {};
+    if (a === 'bold') st.bold = !st.bold; if (a === 'fill') st.fill = !st.fill; if (a === 'money') st.money = !st.money;
+    this.render();
+  }
+}
+
+/* ============ Excel data ============ */
+const excelData = [
+  ['Category','Work Order','Asset','Hours','Rate ($/h)','Labor Cost','Parts Cost','Total'],
+  ['Electrical','WO-1042','Panel 3B inspection',4,45,'=D2*E2',120,'=F2+G2'],
+  ['HVAC','WO-1043','Rooftop unit #2',6,48,'=D3*E3',310,'=F3+G3'],
+  ['Plumbing','WO-1044','Water heater flush',3,42,'=D4*E4',85,'=F4+G4'],
+  ['Electrical','WO-1045','LED retrofit, Aisle 5',8,45,'=D5*E5',640,'=F5+G5'],
+  ['Mechanical','WO-1046','Conveyor motor swap',5,50,'=D6*E6',420,'=F6+G6'],
+  ['TOTAL','','','=SUM(D2:D6)','','=SUM(F2:F6)','=SUM(G2:G6)','=SUM(H2:H6)']
+];
+const excel = new Sheet(document.getElementById('excel'), excelData, {
+  money: [4,5,6,7], totalRow: 6,
+  onRender(s) {
+    const cats = {}; 
+    for (let r = 1; r < s.opts.totalRow; r++) { const k = s.data[r][0]; if (!k) continue; const t = s.val(r, 7); if (typeof t === 'number') cats[k] = (cats[k] || 0) + t; }
+    const max = Math.max(...Object.values(cats), 1);
+    s.root.querySelector('.bars').innerHTML = Object.entries(cats).map(([k, v]) =>
+      `<div class="bar" style="height:${Math.max(v / max * 100, 4)}%"><span>$${Math.round(v)}</span><i>${k}</i></div>`).join('');
+  }
+});
+
+/* ============ Google Sheets data ============ */
+const sheetsData = [
+  ['Task','Owner','Due date','Status','% Complete','Budget'],
+  ['Electrical panel upgrade','Isac','2026-12-05','Active',60,8500],
+  ['Warehouse LED retrofit','Team A','2026-12-18','Planned',10,12400],
+  ['Preventive maintenance plan','Isac','2026-11-30','Done',100,2000],
+  ['Safety audit follow-ups','Team B','2026-12-10','Blocked',35,1800],
+  ['Client portfolio website','Isac','2026-12-20','Active',75,0],
+  ['TOTAL BUDGET','','','','','=SUM(F2:F6)']
+];
+const sheets = new Sheet(document.getElementById('sheets'), sheetsData, { statusCol: 3, chips: true, progress: 4, money: [5], totalRow: 6 });
+
+/* ============ Overlay routing ============ */
+const overlays = ['excel', 'sheets', 'office'];
+function openTool(id, push = true) {
+  overlays.forEach(o => document.getElementById(o).classList.toggle('open', o === id));
+  document.body.style.overflow = id ? 'hidden' : '';
+  if (push) history.replaceState(null, '', id ? '#' + id : location.pathname);
+}
+document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openTool(b.dataset.open)));
+document.querySelectorAll('.close').forEach(b => b.addEventListener('click', () => openTool(null)));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') openTool(null); });
+if (overlays.includes(location.hash.slice(1))) openTool(location.hash.slice(1), false);
+
+/* ============ Office panes ============ */
+document.querySelectorAll('.suite button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.suite button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + b.dataset.pane));
+}));
+const slides = [
+  ['Project Kickoff', ['Scope: electrical upgrade, Building A', 'Timeline: 6 weeks', 'Budget: $8,500']],
+  ['Status Update', ['Panel installation 60% complete', 'No safety incidents', 'Next: inspection and commissioning']],
+  ['Results', ['On time and on budget', 'Downtime reduced by 18%', 'Lessons learned documented']]
+];
+const thumbs = document.querySelector('.thumbs'), sl = document.querySelector('.slide');
+function showSlide(i) {
+  sl.querySelector('h3').textContent = slides[i][0];
+  sl.querySelector('ul').innerHTML = slides[i][1].map(x => `<li>${x}</li>`).join('');
+  thumbs.querySelectorAll('.thumb').forEach((t, j) => t.classList.toggle('on', i === j));
+}
+thumbs.innerHTML = slides.map((s, i) => `<div class="thumb" data-i="${i}"><b>${i + 1}. ${s[0]}</b></div>`).join('');
+thumbs.addEventListener('click', e => { const t = e.target.closest('.thumb'); if (t) showSlide(+t.dataset.i); });
+showSlide(0);
+
+const mails = [
+  ['Vendor Quote: LED fixtures', 'sales@vendor-example.com', 'Hi Isac, attached is the updated quote for 48 LED fixtures. Delivery is estimated at 7–10 business days.'],
+  ['Team Meeting: Weekly Maintenance Review', 'ops-manager@example.com', 'Reminder: Thursday at 9:00 AM. Please bring open work orders and the parts backlog.'],
+  ['Inspection Scheduled', 'safety@example.com', 'The quarterly electrical inspection is scheduled for next Tuesday. Panels 1–5 must be accessible.']
+];
+const list = document.querySelector('.mail .list'), read = document.querySelector('.mail .read');
+list.innerHTML = mails.map((m, i) => `<div class="item" data-i="${i}"><b>${m[0]}</b>${m[1]}</div>`).join('');
+function showMail(i) {
+  list.querySelectorAll('.item').forEach((x, j) => x.classList.toggle('on', i === j));
+  read.innerHTML = `<h4>${mails[i][0]}</h4><div class="meta">From: ${mails[i][1]}</div><p>${mails[i][2]}</p>`;
+}
+list.addEventListener('click', e => { const t = e.target.closest('.item'); if (t) showMail(+t.dataset.i); });
+showMail(0);
+</script>
+</body>
+</html>
